@@ -26,8 +26,8 @@ from detector import Detector
 from tracker import Tracker
 from visualize import HeatmapAccumulator, draw_tracks, reset_history, get_color
 
-DEFAULT_INPUT  = "../data/input/video.mp4"
-DEFAULT_OUTPUT = "../data/output/output.mp4"
+DEFAULT_INPUT = "data/input/video.mp4"
+DEFAULT_OUTPUT = "data/output/output.mp4"
 
 
 def parse_args():
