@@ -3,6 +3,10 @@ import os
 import subprocess
 import sys
 import pandas as pd
+import warnings
+
+# Suppress pkg_resources deprecation warning from deep_sort_realtime
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="pkg_resources")
 
 os.environ["PYTHONIOENCODING"] = "utf-8"
 
