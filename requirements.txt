@@ -7,4 +7,5 @@ opencv-python-headless
 numpy
 pandas
 matplotlib
-ultralytics
+ultralytics 
+scikit-learn
