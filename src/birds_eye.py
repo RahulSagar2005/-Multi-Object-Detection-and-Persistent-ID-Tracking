@@ -176,9 +176,9 @@ def produce_birds_eye_video(
     out_w  = fw + COURT_W
     out_h  = max(fh, COURT_H)
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
-    # Try avc1 first, fall back to mp4v, then XVID
+    # Try codecs: mp4v (most compatible) -> XVID -> avc1 (H.264, may fail on Linux)
     writer = None
-    for codec_name in ["avc1", "mp4v", "XVID"]:
+    for codec_name in ["mp4v", "XVID", "avc1"]:
         fourcc = cv2.VideoWriter_fourcc(*codec_name)
         writer = cv2.VideoWriter(output_path, fourcc, fps, (out_w, out_h))
         if writer.isOpened():
