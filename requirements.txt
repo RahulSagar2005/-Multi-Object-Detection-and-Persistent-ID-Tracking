@@ -1,4 +1,10 @@
 ultralytics
 opencv-python
 numpy
-deep-sort-realtime
+deep-sort-realtime 
+streamlit
+opencv-python-headless
+numpy
+pandas
+matplotlib
+ultralytics
