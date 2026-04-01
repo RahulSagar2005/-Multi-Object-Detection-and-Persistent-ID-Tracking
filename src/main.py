@@ -60,24 +60,16 @@ def main():
     out_dir = os.path.dirname(args.output)
     os.makedirs(out_dir, exist_ok=True)
 
-    # Try codecs: MJPEG (most compatible) -> mp4v -> XVID -> VP9 -> avc1
+    # Use H.264 codec with proper MP4 container - most compatible for web browsers
     safe_fps = max(10, fps)
     writer = None
-    output_path = args.output
-    # Use .avi extension for MJPEG codec (better compatibility)
-    if output_path.endswith('.mp4'):
-        avi_path = output_path.replace('.mp4', '.avi')
-    else:
-        avi_path = None
 
-    for codec_name in ["MJPG", "mp4v", "XVID", "vp09", "avc1"]:
-        # For MJPEG, use .avi extension
-        test_path = avi_path if codec_name == "MJPG" and avi_path else output_path
+    # Try 'H264' (ffmpeg) first, then 'avc1', then 'mp4v' as fallback
+    for codec_name in ["H264", "avc1", "mp4v"]:
         fourcc = cv2.VideoWriter_fourcc(*codec_name)
-        writer = cv2.VideoWriter(test_path, fourcc, safe_fps, (frame_w, frame_h))
+        writer = cv2.VideoWriter(args.output, fourcc, safe_fps, (frame_w, frame_h))
         if writer.isOpened():
-            print(f"✅ VideoWriter opened with codec: {codec_name} -> {test_path}")
-            output_path = test_path
+            print(f"✅ VideoWriter opened with codec: {codec_name}")
             break
         writer.release()
         writer = None

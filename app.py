@@ -59,13 +59,6 @@ def show_video(filename, title):
     path = os.path.join(OUTPUT_DIR, filename)
     st.subheader(title)
 
-    # Also check for .avi version (MJPEG codec output)
-    if path.endswith('.mp4'):
-        avi_path = path.replace('.mp4', '.avi')
-        if os.path.exists(avi_path):
-            path = avi_path
-            filename = filename.replace('.mp4', '.avi')
-
     if os.path.exists(path):
         size = os.path.getsize(path)
         # Check if file is too small (corrupt or incomplete)
@@ -73,7 +66,8 @@ def show_video(filename, title):
             st.warning(f"File exists but may be corrupt ({size} bytes): `{filename}`")
         else:
             st.success(f"✅ Video file ready: {size/1024:.1f} KB")
-            st.video(path)
+            # Use HTML5 video with explicit MIME type for better browser compatibility
+            st.video(path, format='video/mp4')
     else:
         st.warning(f"Not found: `{filename}`")
         if os.path.exists(OUTPUT_DIR):
