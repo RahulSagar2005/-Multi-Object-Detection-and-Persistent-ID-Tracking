@@ -4,14 +4,13 @@ import subprocess
 import sys
 import pandas as pd
 
-# Force UTF-8 for subprocess output (fixes emoji encoding on Windows)
 os.environ["PYTHONIOENCODING"] = "utf-8"
 
 st.set_page_config(page_title="⚽ Tracking Dashboard", layout="wide")
 st.title("⚽ Multi-Object Detection & Persistent ID Tracking")
 
 # ─────────────────────────────────────────────
-# PATHS
+# PATHS  (all absolute, derived from this file)
 # ─────────────────────────────────────────────
 BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
 INPUT_DIR  = os.path.join(BASE_DIR, "data", "input")
@@ -28,8 +27,11 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 @st.cache_resource
 def verify_dependencies():
     missing = []
-    checks = {"cv2": "opencv-python", "ultralytics": "ultralytics",
-               "deep_sort_realtime": "deep-sort-realtime"}
+    checks = {
+        "cv2":                "opencv-python-headless",
+        "ultralytics":        "ultralytics",
+        "deep_sort_realtime": "deep-sort-realtime",
+    }
     for module, pkg in checks.items():
         try:
             __import__(module)
@@ -50,14 +52,20 @@ if missing_pkgs:
 # HELPER FUNCTIONS
 # ─────────────────────────────────────────────
 def show_video(filename, title):
-    """Read video as bytes so Streamlit can serve it correctly on Windows."""
     path = os.path.join(OUTPUT_DIR, filename)
     st.subheader(title)
     if os.path.exists(path):
-        with open(path, "rb") as f:
-            st.video(f.read())
+        size = os.path.getsize(path)
+        if size < 1000:
+            st.warning(f"File exists but may be corrupt ({size} bytes): `{filename}`")
+        else:
+            with open(path, "rb") as f:
+                st.video(f.read())
     else:
         st.warning(f"Not found: `{filename}`")
+        if os.path.exists(OUTPUT_DIR):
+            files = os.listdir(OUTPUT_DIR)
+            st.info(f"Files currently in output dir: {files}")
 
 def show_image(filename, title):
     path = os.path.join(OUTPUT_DIR, filename)
@@ -76,20 +84,23 @@ def show_csv(filename, title):
         st.warning(f"Not found: `{filename}`")
 
 def run_step(label, cmd, cwd):
-    st.write(f"Running: {label}")
+    st.write(f"▶ Running: {label}")
     result = subprocess.run(
         cmd,
         cwd=cwd,
         capture_output=True,
         text=True,
-        encoding="utf-8",   # Fix Windows emoji encoding crash
-        errors="replace"
+        encoding="utf-8",
+        errors="replace",
     )
-    with st.expander(f"Logs — {label}", expanded=result.returncode != 0):
+    with st.expander(f"Logs — {label}", expanded=(result.returncode != 0)):
+        st.text(f"Return code : {result.returncode}")
+        st.text(f"Working dir : {cwd}")
+        st.text(f"Command     : {' '.join(cmd)}")
         if result.stdout:
-            st.text(result.stdout)
+            st.text(result.stdout[-4000:])
         if result.stderr:
-            st.error(result.stderr)
+            st.error(result.stderr[-4000:])
     return result.returncode == 0
 
 # ─────────────────────────────────────────────
@@ -126,7 +137,7 @@ if uploaded_file is not None:
 
         with st.status("Running pipeline...", expanded=True) as status:
 
-            # Step 1: Core pipeline
+            # ── Step 1: Core detection + tracking ──
             step1_ok = run_step(
                 "Core detection + tracking (main.py)",
                 [
@@ -146,8 +157,12 @@ if uploaded_file is not None:
                 status.update(label="Core pipeline failed — check logs above.", state="error")
                 st.stop()
 
-            # Step 2: Enhancements
-            enhance_cmd = [PYTHON, "run_all_enhancements.py"]
+            # ── Step 2: All enhancements ──
+            enhance_cmd = [
+                PYTHON, "run_all_enhancements.py",
+                "--video",   input_path,
+                "--out-dir", OUTPUT_DIR,
+            ]
             if ppm > 0:
                 enhance_cmd += ["--ppm", str(ppm)]
             if run_compare:
@@ -160,7 +175,7 @@ if uploaded_file is not None:
             )
 
             if not step2_ok:
-                status.update(label="Enhancements had errors — partial results shown.", state="error")
+                status.update(label="Enhancements had errors — partial results shown below.", state="error")
             else:
                 status.update(label="Pipeline complete!", state="complete")
 
@@ -188,21 +203,18 @@ if uploaded_file is not None:
             show_image("track_lifetime_plot.png", "Track Lifetime")
 
         st.header("Team Clustering")
-        # FIXED: removed team_split.png (not generated), video now reads as bytes
         show_video("team_output.mp4", "Team-Coloured Tracking Video")
 
         st.header("Speed Estimation")
-        # FIXED: video now reads as bytes
         show_video("speed_output.mp4", "Live Speed Overlay Video")
         show_csv("speed_stats.csv", "Per-Track Speed Stats")
 
         st.header("Bird's-Eye View")
-        # FIXED: video now reads as bytes
         show_video("birds_eye.mp4", "Top-Down Projection")
 
         st.header("Model Comparison")
         show_image("model_comparison.png", "YOLOv8n vs YOLOv8s")
 
         st.header("Raw Tracking Data")
-        show_csv("track_data.csv",       "Full Track Data")
-        show_csv("count_over_time.csv",  "Person Count Per Frame")
+        show_csv("track_data.csv",      "Full Track Data")
+        show_csv("count_over_time.csv", "Person Count Per Frame")
