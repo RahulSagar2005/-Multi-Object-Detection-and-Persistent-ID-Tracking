@@ -1,0 +1,102 @@
+Title: Multi-Object Detection and Persistent ID Tracking in Public Sports/Event Footage
+Assignment Type: AI / Computer Vision / Data Science
+Expected Duration: 2-3 days
+Submission Window: 2-3 days from assignment handoff
+Objective
+The objective of this assignment is to evaluate your ability to design and implement a computer vision
+pipeline capable of:
+Detecting all relevant subjects present in a video
+Assigning consistent and unique IDs to detected subjects across the full video
+Handling real-world video challenges such as occlusion, motion blur, scale changes, camera
+motion, partial visibility, and similar-looking subjects
+This assignment is intended for candidates with a strong interest in applied AI, computer vision,
+tracking, and practical data science engineering.
+Dataset / Video Selection
+You must use your own publicly available video from the internet.
+Video requirements
+The video must be from a publicly accessible source
+The video should contain multiple moving subjects that can be detected and tracked
+Preferred categories:
+cricket
+football / soccer
+basketball
+volleyball
+marathon / race event
+any other sports or public event footage with multiple moving people/objects
+If you find a suitable public cricket video, you may use it
+If not, you may use any other relevant public sports/event video
+Important
+We will not provide any internal video or dataset
+You must include the source link of the video in your submission
+Please use only content that is publicly accessible
+Task Requirements
+1. Object / Subject Detection
+Implement a detection pipeline capable of identifying all relevant subjects in the selected video.
+Examples:
+players
+athletes
+participants
+vehicles, if using a race/event setting
+You may process:
+every frame, or
+selected frames at a reasonable interval
+2. Unique ID Assignment / Multi-Object Tracking
+Each detected subject must be assigned a unique and persistent ID.
+IDs should remain as stable as possible even when:
+subjects move rapidly
+subjects overlap
+partial occlusion occurs
+camera zoom or pan occurs
+subjects have similar appearance
+3. Annotated Output Video
+Produce a processed output video showing:
+bounding boxes / outlines / markers for each detected subject
+unique ID displayed clearly for each tracked subject
+4. Code Submission
+Submit clean, modular, and documented code in one of the following:
+Python scripts
+Jupyter notebook
+a small project repository
+A README.md must be included with:
+installation steps
+dependencies
+how to run the pipeline
+assumptions taken
+limitations
+model/tracker choices
+5. Short Technical Report
+Include a concise report of around 1-2 pages covering:
+model / detector used
+tracking algorithm used
+why this combination was selected
+how ID consistency is maintained
+challenges faced
+failure cases observed
+possible improvements
+Mandatory Deliverables
+Please submit all of the following:
+GitHub repository or zipped codebase
+README.md
+annotated output video
+original public video link
+short technical report
+sample screenshots of results
+short demo video 3-5 minutes explaining your approach [MUST]
+Optional Enhancements
+These are not mandatory, but will be considered strong positives:
+trajectory visualization
+movement heatmaps
+top-view / bird’s-eye projection
+object count over time
+team / role clustering if relevant
+speed estimation or movement statistics
+simple evaluation metrics
+model comparison between two approaches
+deployment as notebook/app/demo script
+Submission Note
+We care more about:
+correctness
+reasoning
+pipeline design
+clarity of work
+than about flashy UI or over-engineering.
