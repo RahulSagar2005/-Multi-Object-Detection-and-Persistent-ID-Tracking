@@ -153,9 +153,19 @@ def demo_from_csv(track_csv: str, video_path: str, output_path: str):
     w   = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     h   = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    writer = cv2.VideoWriter(output_path,
-                             cv2.VideoWriter_fourcc(*"avc1"),
-                             fps, (w, h))
+    # Try avc1 first, fall back to mp4v, then XVID
+    writer = None
+    for codec_name in ["avc1", "mp4v", "XVID"]:
+        fourcc = cv2.VideoWriter_fourcc(*codec_name)
+        writer = cv2.VideoWriter(output_path, fourcc, fps, (w, h))
+        if writer.isOpened():
+            print(f"✅ Team video: VideoWriter opened with codec: {codec_name}")
+            break
+        writer.release()
+        writer = None
+    if writer is None:
+        print("❌ Error: Could not open VideoWriter for team video")
+        return
 
     clusterer = TeamClusterer(min_samples_to_cluster=5)
 

@@ -59,8 +59,7 @@ def show_video(filename, title):
         if size < 1000:
             st.warning(f"File exists but may be corrupt ({size} bytes): `{filename}`")
         else:
-            with open(path, "rb") as f:
-                st.video(f.read())
+            st.video(path)
     else:
         st.warning(f"Not found: `{filename}`")
         if os.path.exists(OUTPUT_DIR):

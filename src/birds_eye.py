@@ -176,9 +176,19 @@ def produce_birds_eye_video(
     out_w  = fw + COURT_W
     out_h  = max(fh, COURT_H)
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
-    writer = cv2.VideoWriter(output_path,
-                             cv2.VideoWriter_fourcc(*"avc1"),
-                             fps, (out_w, out_h))
+    # Try avc1 first, fall back to mp4v, then XVID
+    writer = None
+    for codec_name in ["avc1", "mp4v", "XVID"]:
+        fourcc = cv2.VideoWriter_fourcc(*codec_name)
+        writer = cv2.VideoWriter(output_path, fourcc, fps, (out_w, out_h))
+        if writer.isOpened():
+            print(f"✅ Bird's-eye video: VideoWriter opened with codec: {codec_name}")
+            break
+        writer.release()
+        writer = None
+    if writer is None:
+        print("❌ Error: Could not open VideoWriter for bird's-eye video")
+        return
 
     court_base = build_court_diagram()
     frame_count = 0

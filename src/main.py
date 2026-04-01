@@ -60,12 +60,21 @@ def main():
     out_dir = os.path.dirname(args.output)
     os.makedirs(out_dir, exist_ok=True)
 
-    fourcc = cv2.VideoWriter_fourcc(*"avc1")
-    safe_fps = max(10, fps)  # ensure valid fps
+    # Try avc1 (H.264) first, fall back to mp4v, then XVID
+    safe_fps = max(10, fps)
+    writer = None
+    for codec_name in ["avc1", "mp4v", "XVID"]:
+        fourcc = cv2.VideoWriter_fourcc(*codec_name)
+        writer = cv2.VideoWriter(args.output, fourcc, safe_fps, (frame_w, frame_h))
+        if writer.isOpened():
+            print(f"✅ VideoWriter opened with codec: {codec_name}")
+            break
+        writer.release()
+        writer = None
 
-    writer = cv2.VideoWriter(
-    args.output, fourcc, safe_fps, (frame_w, frame_h)
-)
+    if writer is None:
+        print("❌ Error: Could not open VideoWriter with any codec")
+        return
     detector  = Detector(args.model, conf_threshold=args.conf, min_height=args.min_height)
     tracker   = Tracker()
     heatmap   = HeatmapAccumulator(frame_h, frame_w)
