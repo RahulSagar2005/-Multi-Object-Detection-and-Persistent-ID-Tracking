@@ -134,9 +134,9 @@ def produce_speed_video(track_csv: str, video_path: str,
     h   = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    # Try codecs: mp4v (most compatible) -> XVID -> avc1 (H.264, may fail on Linux)
+    # Try codecs: MJPEG (most compatible) -> mp4v -> XVID -> avc1
     writer = None
-    for codec_name in ["mp4v", "XVID", "avc1"]:
+    for codec_name in ["MJPG", "mp4v", "XVID", "avc1"]:
         fourcc = cv2.VideoWriter_fourcc(*codec_name)
         writer = cv2.VideoWriter(output_path, fourcc, fps, (w, h))
         if writer.isOpened():

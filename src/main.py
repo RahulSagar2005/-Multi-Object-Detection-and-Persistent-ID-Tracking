@@ -60,14 +60,24 @@ def main():
     out_dir = os.path.dirname(args.output)
     os.makedirs(out_dir, exist_ok=True)
 
-    # Try codecs: mp4v (most compatible on Linux) -> XVID -> VP9 (WebM) -> avc1
+    # Try codecs: MJPEG (most compatible) -> mp4v -> XVID -> VP9 -> avc1
     safe_fps = max(10, fps)
     writer = None
-    for codec_name in ["mp4v", "XVID", "vp09", "avc1"]:
+    output_path = args.output
+    # Use .avi extension for MJPEG codec (better compatibility)
+    if output_path.endswith('.mp4'):
+        avi_path = output_path.replace('.mp4', '.avi')
+    else:
+        avi_path = None
+
+    for codec_name in ["MJPG", "mp4v", "XVID", "vp09", "avc1"]:
+        # For MJPEG, use .avi extension
+        test_path = avi_path if codec_name == "MJPG" and avi_path else output_path
         fourcc = cv2.VideoWriter_fourcc(*codec_name)
-        writer = cv2.VideoWriter(args.output, fourcc, safe_fps, (frame_w, frame_h))
+        writer = cv2.VideoWriter(test_path, fourcc, safe_fps, (frame_w, frame_h))
         if writer.isOpened():
-            print(f"✅ VideoWriter opened with codec: {codec_name}")
+            print(f"✅ VideoWriter opened with codec: {codec_name} -> {test_path}")
+            output_path = test_path
             break
         writer.release()
         writer = None

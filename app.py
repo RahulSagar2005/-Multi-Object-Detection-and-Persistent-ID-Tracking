@@ -58,6 +58,14 @@ if missing_pkgs:
 def show_video(filename, title):
     path = os.path.join(OUTPUT_DIR, filename)
     st.subheader(title)
+
+    # Also check for .avi version (MJPEG codec output)
+    if path.endswith('.mp4'):
+        avi_path = path.replace('.mp4', '.avi')
+        if os.path.exists(avi_path):
+            path = avi_path
+            filename = filename.replace('.mp4', '.avi')
+
     if os.path.exists(path):
         size = os.path.getsize(path)
         # Check if file is too small (corrupt or incomplete)

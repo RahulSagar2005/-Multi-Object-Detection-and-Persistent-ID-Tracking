@@ -153,9 +153,9 @@ def demo_from_csv(track_csv: str, video_path: str, output_path: str):
     w   = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     h   = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    # Try codecs: mp4v (most compatible) -> XVID -> avc1 (H.264, may fail on Linux)
+    # Try codecs: MJPEG (most compatible) -> mp4v -> XVID -> avc1
     writer = None
-    for codec_name in ["mp4v", "XVID", "avc1"]:
+    for codec_name in ["MJPG", "mp4v", "XVID", "avc1"]:
         fourcc = cv2.VideoWriter_fourcc(*codec_name)
         writer = cv2.VideoWriter(output_path, fourcc, fps, (w, h))
         if writer.isOpened():
