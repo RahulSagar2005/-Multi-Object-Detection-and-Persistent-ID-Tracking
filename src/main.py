@@ -60,10 +60,10 @@ def main():
     out_dir = os.path.dirname(args.output)
     os.makedirs(out_dir, exist_ok=True)
 
-    # Try codecs in order: mp4v (most compatible) -> XVID -> avc1 (H.264, may fail on Linux without hw encoder)
+    # Try codecs: mp4v (most compatible on Linux) -> XVID -> VP9 (WebM) -> avc1
     safe_fps = max(10, fps)
     writer = None
-    for codec_name in ["mp4v", "XVID", "avc1"]:
+    for codec_name in ["mp4v", "XVID", "vp09", "avc1"]:
         fourcc = cv2.VideoWriter_fourcc(*codec_name)
         writer = cv2.VideoWriter(args.output, fourcc, safe_fps, (frame_w, frame_h))
         if writer.isOpened():
@@ -85,6 +85,7 @@ def main():
     track_log   = []                          # (frame, id, cx, cy, x1,y1,x2,y2)
     last_frame  = None
     frame_count = 0
+    written_frames = 0
 
     print("🚀  Processing …")
 
@@ -111,6 +112,7 @@ def main():
         frame = draw_tracks(frame, tracks, trail_length=args.trail)
         writer.write(frame)
         last_frame = frame.copy()
+        written_frames += 1
 
         if not args.no_display:
             cv2.imshow("Tracking", frame)
@@ -118,10 +120,12 @@ def main():
                 break
 
         if frame_count % 100 == 0:
-            print(f"   Frame {frame_count}/{total} …")
+            print(f"   Frame {frame_count}/{total} (written: {written_frames}) …")
 
     cap.release()
     writer.release()
+    print(f"✅ Video written: {written_frames} frames to {args.output}")
+    print(f"   File size: {os.path.getsize(args.output) / 1024:.1f} KB")
     if not args.no_display:
         cv2.destroyAllWindows()
 

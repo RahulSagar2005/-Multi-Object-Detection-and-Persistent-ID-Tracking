@@ -60,9 +60,11 @@ def show_video(filename, title):
     st.subheader(title)
     if os.path.exists(path):
         size = os.path.getsize(path)
-        if size < 1000:
+        # Check if file is too small (corrupt or incomplete)
+        if size < 10000:  # Less than 10KB is suspicious
             st.warning(f"File exists but may be corrupt ({size} bytes): `{filename}`")
         else:
+            st.success(f"✅ Video file ready: {size/1024:.1f} KB")
             st.video(path)
     else:
         st.warning(f"Not found: `{filename}`")
